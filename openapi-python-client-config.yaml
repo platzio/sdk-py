@@ -1,0 +1,4 @@
+# Configuration for openapi-python-client (see generate-sdk.sh).
+# Generates the package as `platz` so the public import is `import platz`.
+package_name_override: platz
+project_name_override: platz

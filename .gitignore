@@ -1,0 +1,13 @@
+# The platz/ package is generated from the backend OpenAPI schema
+# (see generate-sdk.sh) and rebuilt fresh in CI — never committed.
+/platz/
+
+# Build artifacts and the downloaded schema
+/dist/
+/openapi.yaml
+
+# Python / tooling
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/

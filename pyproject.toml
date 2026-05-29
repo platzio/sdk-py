@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "platz"
+version = "0.7.0-beta.3"
+description = "Platz.io SDK for Python"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Platz.io" }]
+keywords = ["platz", "platzio", "helm", "cicd", "kubernetes"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Typing :: Typed",
+]
+dependencies = [
+    "httpx>=0.23,<0.29",
+    "attrs>=22.2.0",
+    "python-dateutil>=2.8.0",
+]
+
+[project.urls]
+Homepage = "https://platz.io"
+Repository = "https://github.com/platzio/sdk-py"
+
+# The `platz/` package is generated from the backend OpenAPI schema (see
+# generate-sdk.sh) and is gitignored. Hatchling excludes VCS-ignored files
+# from builds by default, so opt out of that to let the generated package in.
+[tool.hatch.build]
+ignore-vcs = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["platz"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/platz", "/README.md", "/LICENSE", "/AGENTS.md"]

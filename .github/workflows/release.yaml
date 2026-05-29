@@ -1,0 +1,55 @@
+name: 🚀 Publish SDK
+
+on:
+  push:
+    branches:
+      - main
+  # Manual trigger for the release manager: lets the publish be (re-)run
+  # after the matching backend release exists, without needing a new commit
+  # (e.g. the very first release, where pyproject.toml is already at the
+  # target version). --check-url keeps a re-run a no-op if already published.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # PyPI trusted publishing (OIDC) — no API token
+
+jobs:
+  release:
+    name: 🚀 Publish SDK
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: 🎲 Choose backend version
+        id: backend_tag
+        run: |
+          if [ -f version-override.txt ]; then
+            version="$(cat version-override.txt)"
+          else
+            version="$(grep -E '^version *= *"' pyproject.toml | head -1 | sed -E 's/version *= *"([^"]+)"/\1/')"
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "backend_tag=v${version}" >> "$GITHUB_OUTPUT"
+
+      - name: ⬇️ Download OpenAPI schema
+        uses: robinraju/release-downloader@v1.12
+        with:
+          repository: ${{ github.repository_owner }}/backend
+          tag: ${{ steps.backend_tag.outputs.backend_tag }}
+          fileName: openapi.yaml
+
+      - name: 🏗️ Generate SDK
+        run: ./generate-sdk.sh openapi.yaml
+
+      - name: 📦 Build
+        run: uv build
+
+      - name: 🚀 Publish to PyPI
+        # Trusted publishing via OIDC. --check-url skips the upload if this
+        # version is already on PyPI, so non-release pushes to main are no-ops.
+        run: uv publish --trusted-publishing always --check-url https://pypi.org/simple/platz/
